@@ -6,14 +6,18 @@ export class Graph {
   }
 
   addVertex(vertex: string) {
-    if (!(vertex in this.adjcencyList)) this.adjcencyList.set(vertex, []);
+    if (!this.adjcencyList.has(vertex)) this.adjcencyList.set(vertex, []);
   }
 
   addEdge(src: string, dst: string) {
-    if (!(src in this.adjcencyList)) this.adjcencyList.set(src, []);
-    if (!(dst in this.adjcencyList)) this.adjcencyList.set(dst, []);
+    if (!this.adjcencyList.has(src)) this.adjcencyList.set(src, []);
+    if (!this.adjcencyList.has(dst)) this.adjcencyList.set(dst, []);
     this.adjcencyList.get(src)?.push(dst);
     this.adjcencyList.get(dst)?.push(src);
+  }
+
+  getNeighbors(vertex: string) {
+    return this.adjcencyList.get(vertex) || [];
   }
 
   dfs(src: string, visited: Set<string> = new Set(), result: string[] = []) {
@@ -22,8 +26,11 @@ export class Graph {
     visited.add(src);
     result.push(src);
 
-    for (let nei of this.adjcencyList.get(src) || []) {
-      if (!visited.has(nei)) this.dfs(nei, visited);
+    const neighbors = this.adjcencyList.get(src) || [];
+    for (let nei of neighbors) {
+      if (!visited.has(nei)) {
+        this.dfs(nei, visited, result);
+      }
     }
 
     return result;
@@ -36,13 +43,16 @@ export class Graph {
 
     while (queue.length > 0) {
       let current = queue.shift()!;
-
       if (visited.has(current)) continue;
+
       visited.add(current);
       result.push(current);
 
-      for (let nei in this.adjcencyList.get(current)) {
-        if (!visited.has(nei)) queue.push(current);
+      const neighbors = this.adjcencyList.get(current) || [];
+      for (let nei of neighbors) {
+        if (!visited.has(nei)) {
+          queue.push(nei);
+        }
       }
     }
 
